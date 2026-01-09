@@ -1,5 +1,7 @@
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 import StepPersonal from "./steps/StepPersonal"
 import StepPhysical from "./steps/StepPhysical"
@@ -63,18 +65,43 @@ const StepForm = () => {
     setShowBiodata(true)
   }
 
-  const handlePrint = () => {
-    window.print()
-  }
+  // Handle PDF Download
+  const downloadPDF = async () => {
+    const element = document.getElementById('biodata-template');
+    if (!element) return;
 
-  const handleReset = () => {
-    setShowBiodata(false)
-    setStep(1)
-    setFormData(null)
-    setPhotoPreview(null)
-    setCustomFields([])
-    setSelectedTemplate('traditional')
-  }
+    // Show loading state if we had one for this button, but for now just async
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff', // Ensure white background for PDF
+        logging: false
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+
+      // Calculate height maintaining aspect ratio based on A4 width
+      const ratio = pdfWidth / imgWidth;
+      const imgComponentHeight = imgHeight * ratio;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgComponentHeight);
+      pdf.save(`Biodata_${formData.firstName || 'User'}.pdf`);
+    } catch (error) {
+      console.error("PDF generation failed", error);
+      alert("Failed to generate PDF. Please try again.");
+    }
+  };
 
   // Render biodata template
   if (showBiodata && formData) {
@@ -84,10 +111,16 @@ const StepForm = () => {
           {/* Action Buttons - Hidden on print */}
           <div className="flex justify-center gap-4 mb-8 print:hidden">
             <button
-              onClick={handlePrint}
-              className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:bg-blue-700 transition-all"
+              onClick={downloadPDF}
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:bg-blue-700 transition-all flex items-center gap-2"
             >
-              🖨️ Print Biodata
+              <span>📥</span> Download PDF
+            </button>
+            <button
+              onClick={() => window.print()}
+              className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:bg-green-700 transition-all flex items-center gap-2"
+            >
+              <span>🖨️</span> Print
             </button>
             <button
               onClick={handleReset}

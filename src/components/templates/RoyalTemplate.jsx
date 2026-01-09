@@ -15,13 +15,7 @@ const RoyalTemplate = ({ data }) => {
                 }}
             ></div>
 
-            {/* Corner Decorations */}
-            <div className="absolute top-0 right-0 w-48 h-48 pointer-events-none z-10">
-                <img src={roseCorner} alt="" className="w-full h-full object-contain transform rotate-90" style={{ filter: 'drop-shadow(2px 2px 2px rgba(0,0,0,0.1))' }} />
-            </div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 pointer-events-none z-10">
-                <img src={roseCorner} alt="" className="w-full h-full object-contain transform -rotate-90" style={{ filter: 'drop-shadow(2px 2px 2px rgba(0,0,0,0.1))' }} />
-            </div>
+
 
             {/* Main Content Border */}
             <div className="relative z-0 h-full p-8 md:p-12">
